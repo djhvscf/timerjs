@@ -32,21 +32,148 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-;( function( window ) {
+;(function (window) {
 
     'use strict';
 
-    /**
-     * timerjs class
-     * @param {Object} options
-     */
-    function timerjs( options ) {
-
+    function _extend(a, b) {
+        for (var key in b) {
+            if (b.hasOwnProperty(key)) {
+                a[key] = b[key];
+            }
+        }
+        return a;
     }
+
+    function timerjs(options) {
+        this.options = _extend(this.options, options);
+        if (this.init) {
+            return new timerjs(this.options);
+        } else {
+            this.set(this.options);
+            return this;
+        }
+    }
+
+    timerjs.prototype.options = {
+        func: undefined,
+        time: 0,
+        autostart: false
+    };
+
+    timerjs.prototype.set = function (options) {
+        this.options = _extend( this.options, options );
+        this.init = true;
+        if (typeof this.options.func === 'object') {
+            var paramList = ['autostart', 'time'];
+            for(var arg in paramList) {
+                if(this.options.func[paramList[arg]] !== undefined) {
+                    eval(paramList[arg] + " = func[paramList[arg]]");
+                }
+            }
+            this.options.func = this.options.func.action;
+        }
+        if (typeof this.options.func === 'function') {
+            this.action = this.options.func;
+        }
+        if (!isNaN(this.options.time)) {
+            this.intervalTime = this.options.time;
+        }
+        if (this.options.autostart && !this.isActive) {
+            this.isActive = true;
+            this.setTimer();
+        }
+        return this;
+    };
+
+    timerjs.prototype.once = function(time) {
+        var timer = this;
+        if (isNaN(time)) {
+            time = 0;
+        }
+        window.setTimeout(function() {
+            timer.action();
+        }, time);
+        return this;
+    };
+
+    timerjs.prototype.play = function(reset) {
+        if (!this.isActive) {
+            if(reset) {
+                this.setTimer();
+            } else {
+                this.setTimer(this.remaining);
+            }
+            this.isActive = true;
+        }
+        return this;
+    };
+
+    timerjs.prototype.pause = function() {
+        if (this.isActive) {
+            this.isActive = false;
+            this.remaining -= new Date() - this.last;
+            this.clearTimer();
+        }
+        return this;
+    };
+
+    timerjs.prototype.stop = function() {
+        this.isActive = false;
+        this.remaining = this.intervalTime;
+        this.clearTimer();
+        return this;
+    };
+
+    timerjs.prototype.toggle = function(reset) {
+        if (this.isActive) {
+            this.pause();
+        } else if (reset) {
+            this.play(true);
+        } else {
+            this.play();
+        }
+        return this;
+    };
+
+    timerjs.prototype.reset = function() {
+        this.isActive = false;
+        this.play(true);
+        return this;
+    };
+
+    timerjs.prototype.clearTimer = function() {
+        window.clearTimeout(this.timeoutObject);
+    };
+
+    timerjs.prototype.setTimer = function(time) {
+        var timer = this;
+        if (typeof this.action !== 'function') {
+            return;
+        }
+        if (isNaN(time)) {
+            time = this.intervalTime;
+        }
+        this.remaining = time;
+        this.last = new Date();
+        this.clearTimer();
+        this.timeoutObject = window.setTimeout(function() {
+            timer.go();
+        }, time);
+    };
+    timerjs.prototype.go = function() {
+        if (this.isActive) {
+            try {
+                this.action();
+            } finally {
+                this.setTimer();
+            }
+        }
+    };
 
     /**
      * Adds the plugin to namespace
      */
     window.timerjs = timerjs;
 
-} )( window );
+})(window);

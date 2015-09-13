@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>timerjs Demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <style>
+        a.git, a.author {
+            font-weight: 300;
+            line-height: 150%;
+            text-decoration: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            font-size:  13px;
+            line-height: 13px;
+            font-weight: 400;
+            color: black;
+            background: white;
+            -webkit-font-smoothing: subpixel-antialiased;
+        }
+
+        a.git {
+            padding: 10px 20px;
+        }
+
+        a.author {
+            padding: 10px 170px 10px 16px;
+        }
+
+        a.git:hover, a.author:hover {
+            background: #c95a5d;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>timerjs Demo</h1>
+
+</div>
+<a class="author" target="_blank" href="http://djhvscf.github.iotimerjs/">Author website</a>
+<a class="git" target="_blank" href="httpstimerjsgithub.com/djhvscf/timerjs">Download at GitHub</a>
+<script src="src/timerjs.js"></script>
+<script>
+    var timerjs;
+    (function() {
+        timerjs = new timerjs({
+            func: function() {
+                console.log('Testing the timerjs plugin.');
+            }
+        }).set({ time : 5000, autostart : true });
+    })();
+</script>
+</body>
+</html>
