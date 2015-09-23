@@ -1,12 +1,12 @@
 /**
  * timerjs.js
  * @version: v1.0.0
- * @author: Dennis Hernández
+ * @author: Dennis Hernï¿½ndez
  * @webSite: http://djhvscf.github.io/Blog
  *
- * Created by Dennis Hernández on 12/Sep/2015.
+ * Created by Dennis Hernï¿½ndez on 12/Sep/2015.
  *
- * Copyright (c) 2015 Dennis Hernández http://djhvscf.github.io/Blog
+ * Copyright (c) 2015 Dennis Hernï¿½ndez http://djhvscf.github.io/Blog
  *
  * The MIT License (http://www.opensource.org/licenses/mit-license.php)
  *
@@ -45,7 +45,7 @@
         return a;
     }
 
-    function _set (that, options) {
+    function _set (that) {
         that.init = true;
         if (typeof that.options.func === 'object') {
             var paramList = ['autostart', 'time'];
@@ -74,7 +74,7 @@
         if (this.init) {
             return new timerjs(this.options);
         } else {
-            _set(this, this.options);
+            _set(this);
             return this;
         }
     }
