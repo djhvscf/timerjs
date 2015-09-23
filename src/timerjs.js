@@ -45,12 +45,36 @@
         return a;
     }
 
+    function _set (that, options) {
+        that.init = true;
+        if (typeof that.options.func === 'object') {
+            var paramList = ['autostart', 'time'];
+            for(var arg in paramList) {
+                if(that.options.func[paramList[arg]] !== undefined) {
+                    eval(paramList[arg] + " = func[paramList[arg]]");
+                }
+            }
+            that.options.func = that.options.func.action;
+        }
+        if (typeof that.options.func === 'function') {
+            that.action = that.options.func;
+        }
+        if (!isNaN(that.options.time)) {
+            that.intervalTime = that.options.time;
+        }
+        if (!that.isActive) {
+            that.isActive = true;
+            that.setTimer();
+        }
+        return that;
+    }
+
     function timerjs(options) {
         this.options = _extend(this.options, options);
         if (this.init) {
             return new timerjs(this.options);
         } else {
-            this.set(this.options);
+            _set(this, this.options);
             return this;
         }
     }
@@ -61,48 +85,20 @@
         autostart: false
     };
 
-    timerjs.prototype.set = function (options) {
-        this.options = _extend( this.options, options );
-        this.init = true;
-        if (typeof this.options.func === 'object') {
-            var paramList = ['autostart', 'time'];
-            for(var arg in paramList) {
-                if(this.options.func[paramList[arg]] !== undefined) {
-                    eval(paramList[arg] + " = func[paramList[arg]]");
-                }
-            }
-            this.options.func = this.options.func.action;
-        }
-        if (typeof this.options.func === 'function') {
-            this.action = this.options.func;
-        }
-        if (!isNaN(this.options.time)) {
-            this.intervalTime = this.options.time;
-        }
-        if (this.options.autostart && !this.isActive) {
-            this.isActive = true;
-            this.setTimer();
-        }
-        return this;
-    };
-
     timerjs.prototype.once = function(time) {
         var timer = this;
-        if (isNaN(time)) {
-            time = 0;
-        }
         window.setTimeout(function() {
             timer.action();
-        }, time);
+        }, isNaN(time) ? 0 : time);
         return this;
     };
 
-    timerjs.prototype.play = function(reset) {
+    timerjs.prototype.play = function(reset, preserveTime) {
         if (!this.isActive) {
             if(reset) {
                 this.setTimer();
             } else {
-                this.setTimer(this.remaining);
+                this.setTimer(preserveTime ? this.options.time : this.remaining);
             }
             this.isActive = true;
         }
@@ -125,13 +121,11 @@
         return this;
     };
 
-    timerjs.prototype.toggle = function(reset) {
+    timerjs.prototype.toggle = function(preserveTime, reset) {
         if (this.isActive) {
             this.pause();
-        } else if (reset) {
-            this.play(true);
         } else {
-            this.play();
+            this.play(reset ? true : false, preserveTime);
         }
         return this;
     };
@@ -143,7 +137,11 @@
     };
 
     timerjs.prototype.clearTimer = function() {
-        window.clearTimeout(this.timeoutObject);
+        if (this.options.autostart) {
+            window.clearInterval(this.timeoutObject);
+        } else {
+            window.clearTimeout(this.timeoutObject);
+        }
     };
 
     timerjs.prototype.setTimer = function(time) {
@@ -151,23 +149,24 @@
         if (typeof this.action !== 'function') {
             return;
         }
-        if (isNaN(time)) {
-            time = this.intervalTime;
-        }
+
+        time = isNaN(time) ? this.intervalTime : time;
         this.remaining = time;
         this.last = new Date();
         this.clearTimer();
-        this.timeoutObject = window.setTimeout(function() {
-            timer.go();
-        }, time);
+        if (this.options.autostart) {
+            this.timeoutObject = window.setInterval(function () {
+                timer.go();
+            }, time);
+        } else {
+            this.timeoutObject = window.setTimeout(function () {
+                timer.go();
+            }, time);
+        }
     };
     timerjs.prototype.go = function() {
         if (this.isActive) {
-            try {
-                this.action();
-            } finally {
-                this.setTimer();
-            }
+            this.action();
         }
     };
 

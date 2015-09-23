@@ -38,19 +38,23 @@
 <body>
 <div class="container">
     <h1>timerjs Demo</h1>
-
+    <div id="div" style="width: 100%; height: 450px;"></div>
+    <input type="button" value="Play/Pause" onclick="timerjs.toggle(true);">
 </div>
-<a class="author" target="_blank" href="http://djhvscf.github.iotimerjs/">Author website</a>
-<a class="git" target="_blank" href="httpstimerjsgithub.com/djhvscf/timerjs">Download at GitHub</a>
+<a class="author" target="_blank" href="http://djhvscf.github.io/Blog/">Author website</a>
+<a class="git" target="_blank" href="https://github.com/djhvscf/timerjs">Download at GitHub</a>
 <script src="src/timerjs.js"></script>
 <script>
     var timerjs;
     (function() {
         timerjs = new timerjs({
             func: function() {
-                console.log('Testing the timerjs plugin.');
-            }
-        }).set({ time : 5000, autostart : true });
+                document.getElementById("div").style.backgroundColor = (function(m,s,c){return (c ? arguments.callee(m,s,c-1) : '#') +
+                        s[m.floor(m.random() * s.length)]})(Math,'0123456789ABCDEF',5);
+            },
+            time : 500,
+            autostart : true
+        });
     })();
 </script>
 </body>
